@@ -1,0 +1,105 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  # Backend build, test, and docker jobs
+  backend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+      
+      - name: Build backend with Maven
+        run: |
+          cd backend
+          mvn clean install -DskipTests
+      
+      - name: Test backend
+        run: |
+          cd backend
+          mvn test
+
+  backend-docker:
+    needs: backend-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push backend Docker image
+        run: |
+          cd ../backend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/spring-boot-backend:latest .
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_USERNAME }}/spring-boot-backend:latest
+
+  # Frontend build, test, and docker jobs
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Test frontend
+        run: |
+          cd frontend
+          npm test
+
+  frontend-docker:
+    needs: frontend-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push frontend Docker image
+        run: |
+          cd frontend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/spring-boot-frontend:latest .
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_USERNAME }}/spring-boot-frontend:latest
+
+  # Deployment job
+  deploy:
+    needs: [backend-docker, frontend-docker]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to cloud
+        run: |
+          echo "Deploying backend and frontend Docker images"
+          # Add your deployment script here for AWS, GCP, or any other service
+          # For example, kubectl commands or other cloud provider's CLI commands
+
