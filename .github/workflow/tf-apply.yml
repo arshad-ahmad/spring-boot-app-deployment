@@ -1,7 +1,7 @@
 name: Terraform Deploy
 
 on:
-  push:
+  pull_request:
     branches:
       - terra  # Trigger the workflow on the main branch
 
