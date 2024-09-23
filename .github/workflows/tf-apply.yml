@@ -26,6 +26,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v3
       with:
         role-to-assume: arn:aws:iam::559050234665:role/cicd  # Your IAM Role AR
+        aws-region: us-east-1
 
     - name: Initialize Terraform
       working-directory: ../terraform
