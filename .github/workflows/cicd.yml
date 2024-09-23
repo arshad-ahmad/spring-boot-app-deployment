@@ -40,7 +40,7 @@ jobs:
 
       - name: Build and push backend Docker image
         run: |
-          cd ../backend
+          cd backend
           docker build -t ${{ secrets.DOCKER_USERNAME }}/spring-boot-backend:latest .
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_USERNAME }}/spring-boot-backend:latest
@@ -97,9 +97,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Deploy to cloud
+      - name: Configure AWS CLI
         run: |
-          echo "Deploying backend and frontend Docker images"
-          # Add your deployment script here for AWS, GCP, or any other service
-          # For example, kubectl commands or other cloud provider's CLI commands
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region us-east-1 # Change to your desired region
 
+      - name: Deploy to AWS ECS
+        run: |
+          # Update the ECS task definition with the new image URI
+          echo "Updating ECS task definition"
+          sed -i "s|<BACKEND_IMAGE_URI>|${{ secrets.DOCKER_USERNAME }}/spring-boot-backend:latest|g" ecs-task-definition.json
+          sed -i "s|<FRONTEND_IMAGE_URI>|${{ secrets.DOCKER_USERNAME }}/spring-boot-frontend:latest|g" ecs-task-definition.json
+
+          # Register the new task definition
+          TASK_DEFINITION=$(aws ecs register-task-definition --cli-input-json file://ecs-task-definition.json)
+          
+          # Update the ECS service with the new task definition
+          SERVICE_NAME="your-service-name" # Replace with your service name
+          CLUSTER_NAME="your-cluster-name" # Replace with your cluster name
+          TASK_FAMILY=$(echo $TASK_DEFINITION | jq -r '.taskDefinition.family')
+          aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --task-definition $TASK_FAMILY
