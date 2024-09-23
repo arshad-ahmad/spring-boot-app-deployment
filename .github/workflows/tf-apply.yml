@@ -29,8 +29,14 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
-        aws s3api create-bucket --bucket my-terraform-state-bucket --region us-east-1 --create-bucket-configuration LocationConstraint=us-east-1
-        aws s3api put-bucket-versioning --bucket my-terraform-state-bucket --versioning-configuration Status=Enabled
+         BUCKET_NAME=my-terraform-state-bucket
+         if ! aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+           echo "Creating S3 bucket: $BUCKET_NAME"
+           aws s3api create-bucket --bucket "$BUCKET_NAME" --region us-east-1 --create-bucket-configuration LocationConstraint=us-east-1
+           aws s3api put-bucket-versioning --bucket "$BUCKET_NAME" --versioning-configuration Status=Enabled
+         else
+           echo "S3 bucket $BUCKET_NAME already exists."
+         fi
         
     - name: Create DynamoDB Table for Terraform Lock
       env:
