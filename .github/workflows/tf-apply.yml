@@ -31,11 +31,11 @@ jobs:
       run: |
          BUCKET_NAME=my-terraform-state-bucket
          if ! aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
-           echo "Creating S3 bucket: $BUCKET_NAME"
-           aws s3api create-bucket --bucket "$BUCKET_NAME" --region us-east-1 --create-bucket-configuration LocationConstraint=us-east-1
-           aws s3api put-bucket-versioning --bucket "$BUCKET_NAME" --versioning-configuration Status=Enabled
+            echo "Creating S3 bucket: $BUCKET_NAME"
+            aws s3api create-bucket --bucket "$BUCKET_NAME" --region us-east-1
+            aws s3api put-bucket-versioning --bucket "$BUCKET_NAME" --versioning-configuration Status=Enabled
          else
-           echo "S3 bucket $BUCKET_NAME already exists."
+            echo "S3 bucket $BUCKET_NAME already exists."
          fi
         
     - name: Create DynamoDB Table for Terraform Lock
