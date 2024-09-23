@@ -57,10 +57,11 @@ resource "aws_security_group" "allow_http" {
 
 # EC2 instance for Spring Boot App
 resource "aws_instance" "app" {
+  depends_on = [aws_security_group.allow_http]
   ami           = "ami-12345678" # Replace with your AMI ID
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.public.id
-  security_groups = [aws_security_group.allow_http.name]
+  security_groups = [aws_security_group.allow_http.id]
 
   tags = {
     Name = "SpringBootApp"
