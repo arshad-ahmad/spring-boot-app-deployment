@@ -24,9 +24,26 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: echo "AWS credentials configured"
 
+    - name: Create S3 Bucket for Terraform State
+      run: |
+        aws s3api create-bucket --bucket my-terraform-state-bucket --region us-east-1 --create-bucket-configuration LocationConstraint=us-east-1
+        aws s3api put-bucket-versioning --bucket my-terraform-state-bucket --versioning-configuration Status=Enabled
+
+    - name: Create DynamoDB Table for Terraform Lock
+      run: |
+        aws dynamodb create-table --table-name my-terraform-lock-table \
+          --attribute-definitions AttributeName=LockID,AttributeType=S \
+          --key-schema AttributeName=LockID,KeyType=HASH \
+          --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+
     - name: Initialize Terraform
       working-directory: ./terraform
-      run: terraform init
+      run: |
+        terraform init \
+          -backend-config="bucket=my-terraform-state-bucket" \
+          -backend-config="key=terraform.tfstate" \
+          -backend-config="region=us-east-1" \
+          -backend-config="dynamodb_table=my-terraform-lock-table"
 
     - name: Terraform Plan
       working-directory: ./terraform
