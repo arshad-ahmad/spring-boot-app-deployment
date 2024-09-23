@@ -1,3 +1,14 @@
-FROM openjdk:11-jre-slim
+# Use a Java base image
+FROM openjdk:11
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the Spring Boot application JAR file
 COPY target/*.jar app.jar
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+
+# Expose the port your Spring Boot app runs on
+EXPOSE 8080
+
+# Run the Spring Boot application
+CMD ["java", "-jar", "app.jar"]
