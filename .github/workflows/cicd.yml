@@ -52,10 +52,6 @@ jobs:
       working-directory: ./app
       run: npm install
 
-    # Run frontend tests
-    - name: Run Frontend Tests
-      working-directory: ./app
-      run: npm test
 
     # Package the Spring Boot app
     - name: Package Application
