@@ -55,6 +55,7 @@ jobs:
 
     # Package the Spring Boot app
     - name: Package Application
+      working-directory: ./app
       run: mvn package
 
     # Run the Spring Boot app
