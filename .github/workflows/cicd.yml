@@ -44,6 +44,8 @@ jobs:
       - name: Build frontend
         working-directory: ./app
         run: |
+          ls 
+          pwd
           npm run build
 
   # Docker build and push job
@@ -60,6 +62,7 @@ jobs:
 
       # Build and push the Docker image
       - name: Build and push Docker image
+        working-directory: ./app
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/spring-boot-app:latest .
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
