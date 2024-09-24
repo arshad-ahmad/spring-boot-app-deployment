@@ -33,10 +33,12 @@ jobs:
 
     # Build the Maven project (backend and frontend)
     - name: Build Backend and Frontend
+      Working_directory : ./app
       run: mvn clean install
 
     # Run backend tests
     - name: Run Backend Tests
+      Working_directory : ./app
       run: mvn test
 
     # Install Node.js for frontend tests
@@ -47,12 +49,12 @@ jobs:
 
     # Install frontend dependencies
     - name: Install Frontend Dependencies
-      working-directory: frontend
+      working-directory: ./app
       run: npm install
 
     # Run frontend tests
     - name: Run Frontend Tests
-      working-directory: frontend
+      working-directory: ./app
       run: npm test
 
     # Package the Spring Boot app
@@ -68,7 +70,7 @@ jobs:
       run: |
         sleep 20 # Wait for the app to start
         curl -v -u greg:turnquist http://localhost:8080/api/employees/3
-        
+
   # Docker build and push job
   docker:
     needs: build
