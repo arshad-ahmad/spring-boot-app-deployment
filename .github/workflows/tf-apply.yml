@@ -9,10 +9,6 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
 
-    permissions:
-      id-token: write
-      contents: read
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -22,17 +18,25 @@ jobs:
       with:
         terraform_version: 1.5.0  # Specify the Terraform version
 
-    - name: Configure AWS credentials using OIDC
-      uses: aws-actions/configure-aws-credentials@v3
-      with:
-        role-to-assume: arn:aws:iam::559050234665:role/cicd  # Your IAM Role AR
-        aws-region: us-east-1
+    - name: Configure AWS credentials
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: echo "AWS credentials configured"
 
     - name: Initialize Terraform
-      working-directory: ../terraform
-      run: terraform init
+      working-directory: ./terraform
+      run: |
+        terraform init \
+          -backend-config="bucket=my-terraform-state-bucket" \
+          -backend-config="key=terraform.tfstate" \
+          -backend-config="region=us-east-1" \
+          -backend-config="dynamodb_table=my-terraform-lock-table"
 
     - name: Terraform Plan
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       working-directory: ./terraform
       run: terraform plan
 
@@ -40,6 +44,3 @@ jobs:
       if: github.ref == 'refs/heads/main'
       working-directory: ./terraform
       run: terraform apply -auto-approve
-
-
-
