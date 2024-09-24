@@ -37,7 +37,7 @@ jobs:
         run: |
           pwd
           ls -a
-          cd app
+          cd ./app
           npm install
 
       # Build the frontend
