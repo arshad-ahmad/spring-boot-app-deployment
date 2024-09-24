@@ -61,7 +61,7 @@ jobs:
     # Run the Spring Boot app
     - name: Run Spring Boot App
       run: |
-        java -jar target/*.jar &
+        nohup java -jar target/*.jar &
         sleep 20 # Wait for the app to start
         curl -v -u greg:turnquist http://localhost:8080/api/employees/3
       
