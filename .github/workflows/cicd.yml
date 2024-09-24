@@ -87,7 +87,7 @@ jobs:
           TASK_DEFINITION=$(aws ecs register-task-definition --cli-input-json file://ecs-task-definition.json)
           
           # Update ECS service with the new task definition
-          SERVICE_NAME="your-service-name"  # Replace with your ECS service name
-          CLUSTER_NAME="your-cluster-name"  # Replace with your ECS cluster name
+          SERVICE_NAME="springboot-service"  # Replace with your ECS service name
+          CLUSTER_NAME="ecs-cluster"  # Replace with your ECS cluster name
           TASK_FAMILY=$(echo $TASK_DEFINITION | jq -r '.taskDefinition.family')
           aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --task-definition $TASK_FAMILY
