@@ -24,6 +24,11 @@ jobs:
       - name: Build application with Maven
         working-directory: ./app
         run: |
+          cp . .
+          ls 
+          pwd
+          mvn dependency:go-offline
+          mvn clean package -DskipTests
           mvn clean install -DskipTests
 
       # Set up Node.js for building the frontend (React)
