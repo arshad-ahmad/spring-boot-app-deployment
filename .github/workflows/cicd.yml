@@ -23,6 +23,7 @@ jobs:
       # Build the Spring Boot backend
       - name: Build application with Maven
         run: |
+          cd app
           mvn clean install -DskipTests
 
       # Set up Node.js for building the frontend (React)
