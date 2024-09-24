@@ -35,6 +35,8 @@ jobs:
       # Install frontend dependencies
       - name: Install app dependencies
         run: |
+          pwd
+          ls -a
           cd app
           npm install
 
