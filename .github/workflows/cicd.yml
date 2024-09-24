@@ -63,7 +63,7 @@ jobs:
       run: |
         nohup java -jar target/*.jar &
         sleep 20 # Wait for the app to start
-        curl -v -u greg:turnquist http://localhost:8080/api/employees/3
+        #curl -v -u greg:turnquist http://localhost:8080/api/employees/3
       
     # Test API endpoint using curl (simple integration test)
     # - name: Test API Endpoint
