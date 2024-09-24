@@ -24,7 +24,6 @@ jobs:
       - name: Build application with Maven
         working-directory: ./app
         run: |
-          cp -r . .
           ls 
           pwd
           mvn dependency:go-offline
